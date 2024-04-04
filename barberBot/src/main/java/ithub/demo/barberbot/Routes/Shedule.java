@@ -1,18 +1,14 @@
 package ithub.demo.barberbot.Routes;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.Data;
 
 import java.awt.*;
 
-@Data
+@Entity
 public class Shedule {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer sheduleId;
+    private long sheduleId;
 
     @Column
     private String masterId;

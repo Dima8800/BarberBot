@@ -1,30 +1,35 @@
 package ithub.demo.barberbot.Routes.Client;
 
-import ithub.demo.barberbot.Routes.Status;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.NonNull;
 
 
+@Entity
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class Client {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long clientId;
+    private Long chatId;
 
     @Column
     private String name;
 
     @Column
-    private Integer chatId;
-
-    @Column
     private String telegramNickname;
 
     @Column
-    @NonNull
     private String phoneNumber;
 
     @Enumerated(EnumType.STRING)
     private Status status;
+
+    @Override
+    public String toString(){
+        return getName() + ", " +
+                getPhoneNumber();
+    }
 }

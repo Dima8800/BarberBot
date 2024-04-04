@@ -2,6 +2,8 @@ package ithub.demo.barberbot.App.Bot;
 
 import ithub.demo.barberbot.App.Config.BotConfig;
 import ithub.demo.barberbot.Routes.Client.Client;
+import ithub.demo.barberbot.Routes.Client.Servicies.ClientService;
+import ithub.demo.barberbot.Routes.Client.Status;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
@@ -24,8 +26,11 @@ public class TelegramBot extends TelegramLongPollingBot {
 
     private final String HELP_TEXT;
 
-    public TelegramBot(BotConfig config) {
+    private final ClientService clientService;
+
+    public TelegramBot(BotConfig config, ClientService clientService) {
         this.config = config;
+        this.clientService = clientService;
         HELP_TEXT = "\nЭтот бот создан для бронирования в барбер шоп\n\nДля использование бота необходима регистраиция. Ее можно сделать по команде /register или в меню по этой же команде" +
                 "\n\n Команды для использования бота:" +
                 "\n/start - начать общение с ботом" +
@@ -42,6 +47,11 @@ public class TelegramBot extends TelegramLongPollingBot {
         listOfCommands.add(new BotCommand("/mydata", "получить данные о себе"));
         listOfCommands.add(new BotCommand("/help", "как пользоваться ботом бота"));
         listOfCommands.add(new BotCommand("/settigs", "настройки бота"));
+        listOfCommands.add(new BotCommand("/barber", "Стать барбером"));
+        listOfCommands.add(new BotCommand("/appoiment", "записаться к барберу"));
+        listOfCommands.add(new BotCommand("/Shedule", "Поставить свобоное время"));
+
+
         try{
             this.execute(new SetMyCommands(listOfCommands, new BotCommandScopeDefault(), null));
         }catch (TelegramApiException err){
@@ -57,16 +67,30 @@ public class TelegramBot extends TelegramLongPollingBot {
 
             switch (message){
                 case "/start":
+                    clientService.startAcquaintance(chatId);
                     StartCommandReceived(chatId,update.getMessage().getChat().getFirstName());
                     break;
                 case "/help":
                     SendMessage(chatId,HELP_TEXT);
                     break;
                 case "/register":
-                    SendMessage(chatId,"Введите ваше имя");
+                    if (clientService.waitName(chatId)){
+                        SendMessage(chatId,"Введите ваше имя");
+                        break;
+                    }
+                    SendMessage(chatId,"повторите команду \n\n/register");
                     break;
+                case "/mydata":
+                    SendMessage(chatId,clientService.getDataClient(chatId));
+                    break;
+                case "/barber":
+
+                    break;
+                case "/appoitment":
+                    break;
+                case "/shedule":
                 default:
-                    SendMessage(chatId, update.getMessage().getChat().getFirstName()+" дурак" );
+                    SendMessage(chatId, clientService.chekDegree(chatId, message));
                     break;
             }
         }
@@ -76,7 +100,6 @@ public class TelegramBot extends TelegramLongPollingBot {
         String answer = "Привет " + name + ", давай знакомиться." + HELP_TEXT;
         SendMessage(chatId, answer);
 
-        log.info("Replied to user " + name);
     }
 
     private void SendMessage(long chatId, String textToSend){
@@ -87,7 +110,7 @@ public class TelegramBot extends TelegramLongPollingBot {
         try {
             execute(message);
         }catch (TelegramApiException err){
-            log.error("Error occurred: " + err.getMessage());
+//            log.error("Error occurred: " + err.getMessage());
         }
     }
 
