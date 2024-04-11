@@ -1,7 +1,6 @@
-package ithub.demo.barberbot.Routes;
+package ithub.demo.barberbot.Routes.Appoitment;
 
 import jakarta.persistence.*;
-import lombok.Data;
 
 
 @Entity

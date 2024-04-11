@@ -24,6 +24,6 @@ public class Master {
 
     @Override
     public String toString(){
-        return masterName + ", " + description;
+        return masterName + ", " + description + ", " + contact;
     }
 }

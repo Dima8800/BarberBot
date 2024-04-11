@@ -1,5 +1,6 @@
 package ithub.demo.barberbot.App.Bot;
 
+import ithub.demo.barberbot.Routes.TelegramBotService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.ContextRefreshedEvent;
@@ -13,7 +14,7 @@ import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 @Component
 public class BotInstalizer {
     @Autowired
-    TelegramBot bot;
+    TelegramBotService bot;
 
     @EventListener({ContextRefreshedEvent.class})
     public void init() throws TelegramApiException {
