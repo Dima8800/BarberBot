@@ -1,7 +1,101 @@
 package ithub.demo.barberbot.Routes.Master.Servicies;
 
+import ithub.demo.barberbot.Routes.Master.Master;
+import ithub.demo.barberbot.Routes.Master.MasterStatus;
+import ithub.demo.barberbot.Routes.Master.Repository.MasterRepository;
 import org.jvnet.hk2.annotations.Service;
 
 @Service
 public class MasterService {
+    private final MasterRepository masterRepository;
+    private final String ERR_TXT;
+
+    public MasterService(MasterRepository masterRepository) {
+        this.masterRepository = masterRepository;
+        ERR_TXT = "извините, произошла ошибка на стороне сервера, пройдите регистрацию еще раз";
+    }
+
+    public String BecomeBarber(long chatId, String linkTelegram){
+        try{
+            Master master = new Master();
+            master.setChatId(chatId);
+
+            master.setContact(linkTelegram);
+            master.setStatus(MasterStatus.wait_name);
+
+            masterRepository.save(master);
+            return "напишите ваше имя о себе";
+        }catch (Exception err){
+            System.out.println(err.getMessage());
+            return ERR_TXT;
+        }
+    }
+
+    public String chekStatus(long chatId, String message){
+        try{
+            Master master = masterRepository.findById(chatId).get();
+            System.out.println(master.getStatus().toString());
+            switch (master.getStatus()){
+                case wait_name:
+                    return setName(message,master);
+                case wait_description:
+                    return setDescription(message, master);
+                default:
+                    return ERR_TXT;
+            }
+        }catch (Exception err){
+            System.out.println(err.getMessage());
+            return ERR_TXT;
+        }
+    }
+
+    public String setName(String name, Master master){
+        try{
+            master.setMasterName(name);
+            master.setStatus(MasterStatus.wait_description);
+
+            masterRepository.save(master);
+            return "напишите ваше описание";
+        }catch (Exception err){
+            System.out.println(err.getMessage());
+            return ERR_TXT;
+        }
+    }
+
+    public String setDescription(String description, Master master){
+        try{
+            master.setDescription(description);
+            master.setStatus(MasterStatus.Stopped);
+
+            System.out.println(master.toString());
+            masterRepository.save(master);
+            System.out.println("save");
+            return "Ваш профиль успешно создан\n\n"
+                    + master.toString()
+                    + "\n\n если что то хотите исправить, то пройдите создание заново /barber";
+        }catch (Exception err){
+            return ERR_TXT;
+        }
+    }
+
+    public String BarberData(long chayId){
+        try{
+            return masterRepository.findById(chayId).get().toString();
+        }catch (Exception err){
+            System.out.println(err.getMessage());
+            return ERR_TXT;
+        }
+    }
+
+    public boolean chekBarberorNot(long chatId){
+        try{
+            if (masterRepository.findById(chatId).get().getStatus() == MasterStatus.Stopped){
+                return false;
+            }
+            return true;
+        }catch (Exception err){
+            System.out.println(err.getMessage());
+            return false;
+        }
+    }
 }

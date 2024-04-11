@@ -4,6 +4,7 @@ import ithub.demo.barberbot.App.Config.BotConfig;
 import ithub.demo.barberbot.Routes.Client.Client;
 import ithub.demo.barberbot.Routes.Client.Servicies.ClientService;
 import ithub.demo.barberbot.Routes.Client.Status;
+import ithub.demo.barberbot.Routes.Master.Servicies.MasterService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
@@ -28,9 +29,12 @@ public class TelegramBot extends TelegramLongPollingBot {
 
     private final ClientService clientService;
 
-    public TelegramBot(BotConfig config, ClientService clientService) {
+    private final MasterService masterService;
+
+    public TelegramBot(BotConfig config, ClientService clientService, MasterService masterService) {
         this.config = config;
         this.clientService = clientService;
+        this.masterService = masterService;
         HELP_TEXT = "\nЭтот бот создан для бронирования в барбер шоп\n\nДля использование бота необходима регистраиция. Ее можно сделать по команде /register или в меню по этой же команде" +
                 "\n\n Команды для использования бота:" +
                 "\n/start - начать общение с ботом" +
@@ -49,7 +53,6 @@ public class TelegramBot extends TelegramLongPollingBot {
         listOfCommands.add(new BotCommand("/settigs", "настройки бота"));
         listOfCommands.add(new BotCommand("/barber", "Стать барбером"));
         listOfCommands.add(new BotCommand("/appoiment", "записаться к барберу"));
-        listOfCommands.add(new BotCommand("/Shedule", "Поставить свобоное время"));
 
 
         try{
@@ -81,15 +84,23 @@ public class TelegramBot extends TelegramLongPollingBot {
                     SendMessage(chatId,"повторите команду \n\n/register");
                     break;
                 case "/mydata":
-                    SendMessage(chatId,clientService.getDataClient(chatId));
+                    if (masterService.chekBarberorNot(chatId)){
+                        SendMessage(chatId,clientService.getDataClient(chatId));
+                        break;
+                    }
+                    SendMessage(chatId, masterService.BarberData(chatId));
                     break;
                 case "/barber":
-
+                    SendMessage(chatId, masterService.BecomeBarber(chatId, "@" + update.getMessage().getFrom().getUserName()));
                     break;
                 case "/appoitment":
                     break;
                 case "/shedule":
                 default:
+                    if (masterService.chekBarberorNot(chatId)){
+                        SendMessage(chatId,masterService.chekStatus(chatId, message));
+                        break;
+                    }
                     SendMessage(chatId, clientService.chekDegree(chatId, message));
                     break;
             }

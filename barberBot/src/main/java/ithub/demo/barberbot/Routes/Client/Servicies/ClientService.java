@@ -8,9 +8,11 @@ import org.jvnet.hk2.annotations.Service;
 @Service
 public class ClientService {
     private final ClientRepository clientRepository;
+    private final String ERR_TXT;
 
     public ClientService(ClientRepository clientRepository) {
         this.clientRepository = clientRepository;
+        ERR_TXT = "извините, произошла ошибка на стороне сервера, пройдите регистрацию еще раз";
     }
 
     public void startAcquaintance(long chatId){
@@ -57,7 +59,7 @@ public class ClientService {
             return "введите номер телефона";
         }catch (Exception err) {
             System.out.println(err.getMessage());
-            return sendErr();
+            return ERR_TXT;
         }
     }
 
@@ -72,7 +74,7 @@ public class ClientService {
             return "регистрация успешно пройдена. Если вы хотите проверить все ли верно, то воспользуйтесь командой /mydata";
         }catch (Exception err){
             System.out.println(err.getMessage());
-            return sendErr();
+            return ERR_TXT;
         }
     }
 
@@ -84,11 +86,11 @@ public class ClientService {
                 case wait_phone :
                     return setPhone(chatId, message);
                 default:
-                    return sendErr();
+                    return ERR_TXT;
             }
         }catch (Exception err){
             System.out.println(err.getMessage());
-            return sendErr();
+            return ERR_TXT;
         }
     }
 
@@ -97,11 +99,8 @@ public class ClientService {
             return clientRepository.findById(chatId).get().toString();
         }catch (Exception err){
             System.out.println(err.getMessage());
-            return sendErr();
+            return ERR_TXT;
         }
     }
 
-    private String sendErr(){
-        return "извините, произошла ошибка на стороне сервера, пройдите регистрацию еще раз";
-    }
 }

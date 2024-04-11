@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 @Entity
+@Data
 public class Master {
     @Id
     private long chatId;
@@ -17,4 +18,12 @@ public class Master {
 
     @Column
     private String description;
+
+    @Column
+    private MasterStatus status;
+
+    @Override
+    public String toString(){
+        return masterName + ", " + description;
+    }
 }
