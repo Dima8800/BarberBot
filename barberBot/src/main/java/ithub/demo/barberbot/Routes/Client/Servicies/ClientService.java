@@ -5,6 +5,8 @@ import ithub.demo.barberbot.Routes.Client.Repostiroy.ClientRepository;
 import ithub.demo.barberbot.Routes.Client.Status;
 import org.jvnet.hk2.annotations.Service;
 
+import java.lang.ref.Cleaner;
+
 @Service
 public class ClientService {
   private final ClientRepository clientRepository;
@@ -84,12 +86,29 @@ public class ClientService {
           return setNameAndWaitPhone(chatId, message);
         case wait_phone:
           return setPhone(chatId, message);
+        case wait_barber:
+          return "barber";
+        case wait_time:
+          return "timeForBarber";
+        case waitService:
+          return "Service";
         default:
           return ERR_TXT;
       }
     } catch (Exception err) {
       System.out.println(err.getMessage());
       return ERR_TXT;
+    }
+  }
+
+  public void setService(long chatId){
+    try {
+      Client client = clientRepository.findById(chatId).get();
+      client.setStatus(Status.waitService);
+
+      clientRepository.save(client);
+    }catch (Exception err){
+      System.out.println(err.getMessage());
     }
   }
 
@@ -102,5 +121,47 @@ public class ClientService {
     }
   }
 
+  public String startAppoitment(){
+    try {
+      return "У вас есть мастер, к которому вы хотите записаться?" +
+        "\n\n/master - что бы выбрать из списка" +
+        "\n/timeForAppoitment - что бы выбрать свободное время";
+    }catch (Exception err){
+      System.out.println(err.getMessage());
+      return ERR_TXT;
+    }
+  }
 
+  public void setStatusBarber(long chatId){
+    try {
+      Client client = clientRepository.findById(chatId).get();
+      client.setStatus(Status.wait_barber);
+
+      clientRepository.save(client);
+    }catch (Exception err){
+      System.out.println(err.getMessage());
+    }
+  }
+
+  public void setTime(long chatId){
+    try {
+      Client client = clientRepository.findById(chatId).get();
+      client.setStatus(Status.wait_time);
+
+      clientRepository.save(client);
+    }catch (Exception err){
+      System.out.println(err.getMessage());
+    }
+  }
+
+  public void setStopped(long chatId){
+    try{
+      Client client = clientRepository.findById(chatId).get();
+      client.setStatus(Status.stopped);
+
+      clientRepository.save(client);
+    }catch (Exception err){
+      System.out.println(err.getMessage());
+    }
+  }
 }

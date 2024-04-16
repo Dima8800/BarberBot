@@ -16,9 +16,9 @@ import org.springframework.context.annotation.Bean;
 @Configuration
 public class AppConfig implements WebMvcConfigurer {
 
-    private String errTXT = "извините, произошла ошибка на стороне сервера, пройдите регистрацию еще раз";
-    private String errTXTUser = "звините, произошла ошибка на стороне сервера";
-    private String errMasterInfo = "Нет информации о мастере";
+    private String errorText = "извините, произошла ошибка на стороне сервера, пройдите регистрацию еще раз";
+    private String errorTextForUser = "звините, произошла ошибка на стороне сервера";
+    private String errorMasterInfo = "Нет информации о мастере";
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/api/v1/**")
@@ -28,21 +28,21 @@ public class AppConfig implements WebMvcConfigurer {
 
     @Bean
     public ClientService clientService(ClientRepository clientRepository) {
-        return new ClientService(clientRepository,errTXT);
+        return new ClientService(clientRepository,errorText);
     }
 
     @Bean
     public MasterService masterService(MasterRepository masterRepository, SheduleService sheduleService) {
-        return new MasterService(masterRepository, sheduleService, errTXT, errMasterInfo);
+        return new MasterService(masterRepository, sheduleService, errorText, errorMasterInfo);
     }
 
     @Bean
     public SheduleService sheduleService(SheduleRepository sheduleRepository) {
-        return new SheduleService(sheduleRepository, errTXT, errTXTUser);
+        return new SheduleService(sheduleRepository, errorText, errorTextForUser);
     }
 
     @Bean
     public AppoitmentService appoitmentService(AppoitmentRepository appoitmentRepository, SheduleService sheduleService){
-        return new AppoitmentService(appoitmentRepository, sheduleService,errTXTUser);
+        return new AppoitmentService(appoitmentRepository, sheduleService,errorTextForUser);
     }
 }

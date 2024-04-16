@@ -4,7 +4,10 @@ import ithub.demo.barberbot.Routes.Master.Master;
 import ithub.demo.barberbot.Routes.Master.MasterStatus;
 import ithub.demo.barberbot.Routes.Master.Repository.MasterRepository;
 import ithub.demo.barberbot.Routes.Master.Shedule.Service.SheduleService;
+import org.aspectj.bridge.IMessage;
 import org.jvnet.hk2.annotations.Service;
+
+import java.util.List;
 
 @Service
 public class MasterService {
@@ -28,7 +31,7 @@ public class MasterService {
       Master master = new Master();
       master.setChatId(chatId);
 
-      master.setContact(linkTelegram);
+      master.setLink(linkTelegram);
       master.setStatus(MasterStatus.wait_name);
 
       masterRepository.save(master);
@@ -143,34 +146,56 @@ public class MasterService {
       master.setStatus(MasterStatus.time);
 
       masterRepository.save(master);
-      return sheduleService.getAllForMasterId(chatId);
+      return sheduleService.getAllByMasterId(chatId);
     }catch (Exception err){
       System.out.println(err.getMessage());
       return ERR_TXT;
     }
   }
 
-  private String getTime(Master master, String sheule){
+  private String getTime(Master master, String shedule){
     try{
-      if (sheule.equals("0")){
+      if (shedule.equals("0")){
         master.setStatus(MasterStatus.Stopped);
         masterRepository.save(master);
         return "Отлично, что ваc все устривает";
       }
-      sheduleService.deleteShedule(Long.parseLong(sheule));
-      return sheduleService.getAllForMasterId(master.getChatId());
+      sheduleService.deleteShedule(Long.parseLong(shedule));
+      return sheduleService.getAllByMasterId(master.getChatId());
     }catch (Exception err){
       System.out.println(err.getMessage());
       return ERR_TXT;
     }
   }
 
-  public String getInfo(long chatId){
+  public String getAllMasters(){
     try {
-      return masterRepository.findById(chatId).get().toString();
+      String returnMessage = "Напишите @ мастера, который вам понравится\n\n";
+      List<Master> masters = masterRepository.findAll();
+
+      for (Master master : masters){
+        returnMessage += master.toString() + "\n";
+      }
+
+      return returnMessage;
+    }catch (Exception err) {
+      System.out.println(err.getMessage());
+      return ERR_TXT;
+    }
+  }
+
+  public String getTimeByBarber(String link){
+    try {
+      Master master = masterRepository.findMasterByLink(link);
+
+      if (master == null){
+        return "неправильно выбран мастер";
+      }
+
+      return sheduleService.getFreeTimeByMasterIdForUser(master.getChatId());
     }catch (Exception err){
       System.out.println(err.getMessage());
-      return masterInfoErr;
+      return ERR_TXT;
     }
   }
 }

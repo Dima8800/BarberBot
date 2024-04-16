@@ -4,8 +4,10 @@ import ithub.demo.barberbot.Routes.Master.Servicies.MasterService;
 import ithub.demo.barberbot.Routes.Master.Shedule.Repository.SheduleRepository;
 import ithub.demo.barberbot.Routes.Master.Shedule.Shedule;
 import ithub.demo.barberbot.Routes.Master.Shedule.SheduleStatus;
+import org.aspectj.weaver.bcel.ExceptionRange;
 import org.jvnet.hk2.annotations.Service;
 
+import java.awt.print.Pageable;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
@@ -47,7 +49,21 @@ public class SheduleService {
     }
   }
 
-  public String getAllForMasterId(long chatId){
+  public String getFreeTimeByMasterIdForUser(long masterId){
+    try{
+      return  "Время:\n"
+        + sheduleRepository.findAllBySheduleStatusAndMasterId(SheduleStatus.free, masterId).stream()
+        .map(shedule -> shedule.getSheduleId() + " - "
+          + shedule.getLockedTime().format(formatter))
+        .collect(Collectors.joining("\n"))
+        + "\n\nЧто бы выбрать, напишите номер свободного времени";
+    }catch (Exception err){
+      System.out.println(err.getMessage());
+      return ERR_TXT;
+    }
+  }
+
+  public String getAllByMasterId(long chatId){
     try {
       return allSheduleForTXT(sheduleRepository.findByMasterId(chatId))
               + " Вы можете удалить запись, просто написав номер этой записи," +
@@ -56,6 +72,15 @@ public class SheduleService {
       System.out.println(err.getMessage());
       return ERR_TXT;
     }
+  }
+
+  private String allSheduleForTXT(List<Shedule> shedules){
+    String returnMessage = "Время:\n\n";
+
+    for (int i = 0; i < shedules.size(); i++){
+      returnMessage += shedules.get(i).toString() + "\n\n";
+    }
+    return returnMessage;
   }
 
   public String deleteShedule(long SheduleId){
@@ -68,25 +93,29 @@ public class SheduleService {
     }
   }
 
-  private String allSheduleForTXT(List<Shedule> shedules){
-    String returnMessage = "Ваше свободное время:\n\n";
-
-    for (int i = 0; i < shedules.size(); i++){
-      returnMessage += shedules.get(i).toString() + "\n\n";
-    }
-    return returnMessage;
-  }
-
-  public String getAllDate(){
+  public Shedule book(long sheduleId){
     try {
-      List<Shedule> shedules = sheduleRepository.findAllBySheduleStatus(SheduleStatus.free);
-      return shedules.stream()
-              .map(shedule -> shedule.getSheduleId() + " - "
-                      + shedule.getLockedTime().format(formatter))
-              .collect(Collectors.joining("\n"));
+      Shedule shedule = sheduleRepository.findSheduleBySheduleId(sheduleId);
+      shedule.setSheduleStatus(SheduleStatus.occupied);
+
+      sheduleRepository.save(shedule);
+      return shedule;
     }catch (Exception err){
       System.out.println(err.getMessage());
-      return ERR_TXT;
+      return null;
     }
   }
+
+//  public String getAllDate(){
+//    try {
+//      List<Shedule> shedules = sheduleRepository.findAllBySheduleStatus(SheduleStatus.free);
+//      return shedules.stream()
+//              .map(shedule -> shedule.getSheduleId() + " - "
+//                      + shedule.getLockedTime().format(formatter))
+//              .collect(Collectors.joining("\n"));
+//    }catch (Exception err){
+//      System.out.println(err.getMessage());
+//      return ERR_TXT;
+//    }
+//  }
 }

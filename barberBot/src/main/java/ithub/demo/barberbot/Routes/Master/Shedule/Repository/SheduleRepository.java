@@ -11,5 +11,6 @@ import java.util.List;
 
 public interface SheduleRepository extends JpaRepository<Shedule, Long> {
     List<Shedule> findByMasterId(long masterId);
-    List<Shedule> findAllBySheduleStatus(SheduleStatus sheduleStatus);
+    List<Shedule> findAllBySheduleStatusAndMasterId(SheduleStatus sheduleStatus, long masterId);
+    Shedule findSheduleBySheduleId(long sheduleId);
 }

@@ -17,6 +17,9 @@ public class Master {
     private String contact;
 
     @Column
+    private String link;
+
+    @Column
     private String description;
 
     @Column
@@ -24,6 +27,6 @@ public class Master {
 
     @Override
     public String toString(){
-        return masterName + ", " + description + ", " + contact;
+        return masterName + ", " + contact + ", " + link + "\n " +  description ;
     }
 }

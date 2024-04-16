@@ -24,6 +24,6 @@ public class Shedule {
 
     @Override
     public String toString(){
-        return sheduleId + ". " + lockedTime.toString() + " - " + sheduleStatus;
+        return sheduleId + ". " + lockedTime.toString();
     }
 }
