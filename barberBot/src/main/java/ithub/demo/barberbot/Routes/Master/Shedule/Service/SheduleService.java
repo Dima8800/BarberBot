@@ -6,6 +6,7 @@ import org.jvnet.hk2.annotations.Service;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
+import java.util.List;
 
 @Service
 public class SheduleService {
@@ -37,6 +38,17 @@ public class SheduleService {
     }
   }
 
+  public String getAllForMasterId(long chatId){
+    try {
+      return allSheduleForTXT(shedukleRepository.findByMasterId(chatId))
+              + "Вы можете удалить запись, просто написав номер этой записи," +
+              " если вас все устраивает, напишите \"0\"";
+    }catch (Exception err){
+      System.out.println(err.getMessage());
+      return ERR_TXT;
+    }
+  }
+
   public String deleteShedule(long SheduleId){
     try {
       shedukleRepository.deleteById(SheduleId);
@@ -45,5 +57,14 @@ public class SheduleService {
       System.out.println(err.getMessage());
       return ERR_TXT;
     }
+  }
+
+  private String allSheduleForTXT(List<Shedule> shedules){
+    String returnMessage = null;
+
+    for (int i = 0; i < shedules.size(); i++){
+      returnMessage += shedules.get(i).toString() + "\n\n";
+    }
+    return returnMessage;
   }
 }

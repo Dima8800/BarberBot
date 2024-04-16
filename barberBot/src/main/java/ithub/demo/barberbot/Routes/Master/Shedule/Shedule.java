@@ -17,4 +17,9 @@ public class Shedule {
 
     @Column
     private LocalDateTime lockedTime;
+
+    @Override
+    public String toString(){
+        return sheduleId + ". " + lockedTime.toString();
+    }
 }

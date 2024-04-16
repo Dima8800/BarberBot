@@ -17,7 +17,7 @@ public class MasterService {
   public MasterService(MasterRepository masterRepository, SheduleService sheduleService, String errTXT) {
     this.masterRepository = masterRepository;
     this.sheduleService = sheduleService;
-    ERR_TXT  = errTXT + "\n\n /barber";
+    ERR_TXT  = errTXT + "\n\n /barber или повторите прошлую команду";
   }
 
   public String BecomeBarber(long chatId, String linkTelegram) {
@@ -48,6 +48,8 @@ public class MasterService {
           return setContact(message, master);
         case appoitment:
           return sheduleService.setShedule(chatId,message);
+        case time:
+          return getTime(master, message);
         default:
           return ERR_TXT;
       }
@@ -124,6 +126,33 @@ public class MasterService {
 
       return "напишите дату и время\n\n " +
         "формат: 2024 02 02 16 30";
+    }catch (Exception err){
+      System.out.println(err.getMessage());
+      return ERR_TXT;
+    }
+  }
+
+  public String getAllShedule(long chatId){
+    try {
+      Master master = masterRepository.findById(chatId).get();
+      master.setStatus(MasterStatus.time);
+
+      return sheduleService.getAllForMasterId(chatId);
+    }catch (Exception err){
+      System.out.println(err.getMessage());
+      return ERR_TXT;
+    }
+  }
+
+  private String getTime(Master master, String sheule){
+    try{
+      master.setStatus(MasterStatus.Stopped);
+
+      if (sheule == "0"){
+        return "Отлично, что ваc все устривает";
+      }
+      sheduleService.deleteShedule(Long.parseLong(sheule));
+      return sheduleService.getAllForMasterId(master.getChatId());
     }catch (Exception err){
       System.out.println(err.getMessage());
       return ERR_TXT;
