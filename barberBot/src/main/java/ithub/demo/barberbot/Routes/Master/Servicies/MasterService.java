@@ -14,10 +14,13 @@ public class MasterService {
 
   private final String ERR_TXT;
 
-  public MasterService(MasterRepository masterRepository, SheduleService sheduleService, String errTXT) {
+  private final String masterInfoErr;
+
+  public MasterService(MasterRepository masterRepository, SheduleService sheduleService, String errTXT, String masterInfoErr) {
     this.masterRepository = masterRepository;
     this.sheduleService = sheduleService;
     ERR_TXT  = errTXT + "\n\n /barber или повторите прошлую команду";
+      this.masterInfoErr = masterInfoErr;
   }
 
   public String BecomeBarber(long chatId, String linkTelegram) {
@@ -47,6 +50,7 @@ public class MasterService {
         case wait_contact:
           return setContact(message, master);
         case appoitment:
+          System.out.println("appoiment");
           return sheduleService.setShedule(chatId,message);
         case time:
           return getTime(master, message);
@@ -124,6 +128,7 @@ public class MasterService {
       Master master = masterRepository.findById(chatId).get();
       master.setStatus(MasterStatus.appoitment);
 
+      masterRepository.save(master);
       return "напишите дату и время\n\n " +
         "формат: 2024 02 02 16 30";
     }catch (Exception err){
@@ -137,6 +142,7 @@ public class MasterService {
       Master master = masterRepository.findById(chatId).get();
       master.setStatus(MasterStatus.time);
 
+      masterRepository.save(master);
       return sheduleService.getAllForMasterId(chatId);
     }catch (Exception err){
       System.out.println(err.getMessage());
@@ -146,9 +152,9 @@ public class MasterService {
 
   private String getTime(Master master, String sheule){
     try{
-      master.setStatus(MasterStatus.Stopped);
-
-      if (sheule == "0"){
+      if (sheule.equals("0")){
+        master.setStatus(MasterStatus.Stopped);
+        masterRepository.save(master);
         return "Отлично, что ваc все устривает";
       }
       sheduleService.deleteShedule(Long.parseLong(sheule));
@@ -156,6 +162,15 @@ public class MasterService {
     }catch (Exception err){
       System.out.println(err.getMessage());
       return ERR_TXT;
+    }
+  }
+
+  public String getInfo(long chatId){
+    try {
+      return masterRepository.findById(chatId).get().toString();
+    }catch (Exception err){
+      System.out.println(err.getMessage());
+      return masterInfoErr;
     }
   }
 }

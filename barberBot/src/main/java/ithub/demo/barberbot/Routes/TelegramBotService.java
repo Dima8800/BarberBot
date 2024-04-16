@@ -1,6 +1,7 @@
 package ithub.demo.barberbot.Routes;
 
 import ithub.demo.barberbot.App.Config.BotConfig;
+import ithub.demo.barberbot.Routes.Appoitment.Service.AppoitmentService;
 import ithub.demo.barberbot.Routes.Client.Servicies.ClientService;
 import ithub.demo.barberbot.Routes.Master.Servicies.MasterService;
 import lombok.extern.slf4j.Slf4j;
@@ -28,11 +29,14 @@ public class TelegramBotService extends TelegramLongPollingBot {
 
   private final MasterService masterService;
 
-  public TelegramBotService(BotConfig config, ClientService clientService, MasterService masterService) {
+  private final AppoitmentService appoitmentService;
+
+  public TelegramBotService(BotConfig config, ClientService clientService, MasterService masterService, AppoitmentService appoitmentService) {
     this.config = config;
     this.clientService = clientService;
     this.masterService = masterService;
-    HELP_TEXT = "\nЭтот бот создан для бронирования в барбер шоп\n\n" +
+      this.appoitmentService = appoitmentService;
+      HELP_TEXT = "\nЭтот бот создан для бронирования в барбер шоп\n\n" +
       "Для использование бота необходима регистраиция. Ее можно сделать по команде " +
       "/register или в меню по этой же команде" +
       "\n\n Команды для использования бота:" +
@@ -92,21 +96,23 @@ public class TelegramBotService extends TelegramLongPollingBot {
           clientService.deleteClient(chatId);
           SendMessage(chatId, masterService.BecomeBarber(chatId, "@" + update.getMessage().getFrom().getUserName()));
           break;
-        case "/appoitment":
-
+        case "/appoiment":
+          SendMessage(chatId, appoitmentService.startAppoiment());
           break;
         case "/shedule":
-          if (!masterService.chekBarberorNot(chatId)) {
+          if (masterService.chekBarberorNot(chatId)) {
             SendMessage(chatId, "вы не можете выставлять время для записи\n\n" +
               "вы можете записаться по команде /appoitment");
+            break;
           }
           SendMessage(chatId, masterService.setAppoitment(chatId));
           break;
         case "/time":
-          // barber посмотреть все записи
+          SendMessage(chatId, masterService.getAllShedule(chatId));
           break;
         default:
           if (masterService.chekBarberorNot(chatId)) {
+            System.out.println("barber");
             SendMessage(chatId, masterService.chekStatus(chatId, message));
             break;
           }

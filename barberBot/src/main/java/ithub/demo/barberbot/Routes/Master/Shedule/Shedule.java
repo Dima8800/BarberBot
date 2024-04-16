@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 @Data
 public class Shedule {
     @Id
+    @GeneratedValue
     private long sheduleId;
 
     @Column
@@ -18,8 +19,11 @@ public class Shedule {
     @Column
     private LocalDateTime lockedTime;
 
+    @Column
+    private SheduleStatus sheduleStatus;
+
     @Override
     public String toString(){
-        return sheduleId + ". " + lockedTime.toString();
+        return sheduleId + ". " + lockedTime.toString() + " - " + sheduleStatus;
     }
 }
