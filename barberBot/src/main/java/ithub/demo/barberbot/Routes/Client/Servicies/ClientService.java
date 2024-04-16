@@ -10,9 +10,9 @@ public class ClientService {
   private final ClientRepository clientRepository;
   private final String ERR_TXT;
 
-  public ClientService(ClientRepository clientRepository) {
+  public ClientService(ClientRepository clientRepository, String errTXT) {
     this.clientRepository = clientRepository;
-    ERR_TXT = "извините, произошла ошибка на стороне сервера, пройдите регистрацию еще раз";
+    ERR_TXT = errTXT + " \n\n/register";
   }
 
   public void deleteClient(long chatId) {

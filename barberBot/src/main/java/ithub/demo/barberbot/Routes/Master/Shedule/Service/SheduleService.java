@@ -1,7 +1,7 @@
-package ithub.demo.barberbot.Routes.Shedule.Service;
+package ithub.demo.barberbot.Routes.Master.Shedule.Service;
 
-import ithub.demo.barberbot.Routes.Shedule.Repository.SheduleRepository;
-import ithub.demo.barberbot.Routes.Shedule.Shedule;
+import ithub.demo.barberbot.Routes.Master.Shedule.Repository.SheduleRepository;
+import ithub.demo.barberbot.Routes.Master.Shedule.Shedule;
 import org.jvnet.hk2.annotations.Service;
 
 import java.time.LocalDateTime;
@@ -13,9 +13,9 @@ public class SheduleService {
   private final SheduleRepository shedukleRepository;
   private final String ERR_TXT;
 
-  public SheduleService(SheduleRepository shedukleRepository) {
+  public SheduleService(SheduleRepository shedukleRepository, String errTXT) {
     this.shedukleRepository = shedukleRepository;
-    ERR_TXT = "извините, произошла ошибка на стороне сервера, пройдите регистрацию еще раз /n/n /barber";
+    ERR_TXT = errTXT + "\n\n/shedule";
   }
 
   public String setShedule(long chatId,String date){
@@ -37,9 +37,10 @@ public class SheduleService {
     }
   }
 
-  public String deleteShedule(){
+  public String deleteShedule(long SheduleId){
     try {
-      return null;
+      shedukleRepository.deleteById(SheduleId);
+      return "Запись успешно удалена";
     }catch (Exception err){
       System.out.println(err.getMessage());
       return ERR_TXT;

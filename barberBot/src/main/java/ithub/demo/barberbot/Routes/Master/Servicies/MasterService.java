@@ -3,16 +3,21 @@ package ithub.demo.barberbot.Routes.Master.Servicies;
 import ithub.demo.barberbot.Routes.Master.Master;
 import ithub.demo.barberbot.Routes.Master.MasterStatus;
 import ithub.demo.barberbot.Routes.Master.Repository.MasterRepository;
+import ithub.demo.barberbot.Routes.Master.Shedule.Service.SheduleService;
 import org.jvnet.hk2.annotations.Service;
 
 @Service
 public class MasterService {
   private final MasterRepository masterRepository;
+
+  private final SheduleService sheduleService;
+
   private final String ERR_TXT;
 
-  public MasterService(MasterRepository masterRepository) {
+  public MasterService(MasterRepository masterRepository, SheduleService sheduleService, String errTXT) {
     this.masterRepository = masterRepository;
-    ERR_TXT = "извините, произошла ошибка на стороне сервера, пройдите регистрацию еще раз /n/n /barber";
+    this.sheduleService = sheduleService;
+    ERR_TXT  = errTXT + "\n\n /barber";
   }
 
   public String BecomeBarber(long chatId, String linkTelegram) {
@@ -41,6 +46,8 @@ public class MasterService {
           return setDescription(message, master);
         case wait_contact:
           return setContact(message, master);
+        case appoitment:
+          return sheduleService.setShedule(chatId,message);
         default:
           return ERR_TXT;
       }
@@ -107,6 +114,19 @@ public class MasterService {
     } catch (Exception err) {
       System.out.println(err.getMessage());
       return false;
+    }
+  }
+
+  public String setAppoitment(long chatId){
+    try{
+      Master master = masterRepository.findById(chatId).get();
+      master.setStatus(MasterStatus.appoitment);
+
+      return "напишите дату и время\n\n " +
+        "формат: 2024 02 02 16 30";
+    }catch (Exception err){
+      System.out.println(err.getMessage());
+      return ERR_TXT;
     }
   }
 }

@@ -4,5 +4,6 @@ public enum MasterStatus {
     wait_name,
     wait_description,
     Stopped,
-    wait_contact
+    wait_contact,
+    appoitment
 }

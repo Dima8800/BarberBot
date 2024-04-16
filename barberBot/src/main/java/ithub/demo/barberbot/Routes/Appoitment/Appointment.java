@@ -15,6 +15,6 @@ public class Appointment {
     private Integer masterId;
 
     @Column
-    private Integer service_ID;
+    private ServiceOffBarber serviceOffBarber;
 
 }

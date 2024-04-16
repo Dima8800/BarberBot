@@ -96,11 +96,11 @@ public class TelegramBotService extends TelegramLongPollingBot {
 
           break;
         case "/shedule":
-          if (masterService.chekBarberorNot(chatId)) {
-
+          if (!masterService.chekBarberorNot(chatId)) {
+            SendMessage(chatId, "вы не можете выставлять время для записи\n\n" +
+              "вы можете записаться по команде /appoitment");
           }
-          SendMessage(chatId, "вы не можете выставлять время для записи\n\n" +
-            "вы можете записаться по команде /appoitment");
+          SendMessage(chatId, masterService.setAppoitment(chatId));
           break;
         case "/time":
           // barber посмотреть все записи

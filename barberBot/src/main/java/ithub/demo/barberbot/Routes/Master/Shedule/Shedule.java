@@ -1,4 +1,4 @@
-package ithub.demo.barberbot.Routes.Shedule;
+package ithub.demo.barberbot.Routes.Master.Shedule;
 
 import jakarta.persistence.*;
 import lombok.Data;
